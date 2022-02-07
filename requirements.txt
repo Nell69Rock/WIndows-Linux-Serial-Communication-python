@@ -1,0 +1,10 @@
+certifi==2021.10.8
+charset-normalizer==2.0.11
+future==0.18.2
+idna==3.3
+iso8601==1.0.2
+pyserial==3.5
+PyYAML==6.0
+requests==2.27.1
+serial==0.0.97
+urllib3==1.26.8
