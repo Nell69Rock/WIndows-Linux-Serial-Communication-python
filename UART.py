@@ -1,3 +1,4 @@
+import subprocess
 import class_serial_uart
 import os, sys, platform, re
 import argparse
@@ -83,8 +84,16 @@ def init_log_folder(port_name):
     global log_fname
     port_name = re.sub("\!|\'|\/","", port_name)
 
+    cmd = "awk -F'[/:]' '{if ($3 >= 1000 && $3 != 65534) print $1}' /etc/passwd"
+    proc = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE,
+                                             stderr = subprocess.STDOUT)
+    
+    res = proc.communicate()[0]
+
+    res = res.decode('UTF-8', 'ignores').rstrip('\n')
+
     if (platform.system() == 'Linux'):
-        log_dir = f'{os.path.expanduser("~/../home/peta")}/log'
+        log_dir = f'{os.path.expanduser(f"~/../home/{res}")}/log'
     elif (platform.system() == 'Windows'):
         log_dir = f'{os.path.expanduser("~")}/log'
     
