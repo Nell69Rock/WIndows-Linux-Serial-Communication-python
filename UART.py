@@ -108,7 +108,7 @@ def check_exist_log_folder(log_dir):
 
 def get_current_time():
     now = datetime.datetime.now()
-    nowTime = now.strftime('[%Y/%D %H:%M:%S.%f] ')
+    nowTime = now.strftime('[%Y-%m-%d %H:%M:%S.%f] ')
     return nowTime
 
 def watch_dog_pattern_match(rx_data, watch_pattern_list, b_watch_end, out_fd):
