@@ -159,7 +159,14 @@ def terminal_write_handler():
                 sys.stdout.flush()
                 tx_data = u''
             time.sleep(1)
+        except (EOFError):
+            pid = os.getpid()
+            os.kill(pid, 2)
+            break
+
         except (KeyboardInterrupt):
+            pid = os.getpid()
+            os.kill(pid, 2)
             break
 
         except (class_serial_uart.SerialException, class_serial_uart.SerialTimeoutException, class_serial_uart.PortNotOpenError) as ex:
@@ -173,7 +180,9 @@ def run_read_proc(watch_pattern_list, b_watch_end):
     out_fd = open(log_fname, 'w')
     while True:
         try:
+            lock.acquire()
             res = uart_instance.ReadBytes()
+            lock.release()
 
             if len(res) == 0:
                 continue
@@ -200,7 +209,9 @@ def run_read_proc(watch_pattern_list, b_watch_end):
             out_fd.write(rx_byte)
             sys.stdout.flush()
             out_fd.flush()
+
         except (KeyboardInterrupt):
+            lock.release()
             out_fd.close()
             break
 
