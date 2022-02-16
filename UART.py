@@ -11,10 +11,30 @@ except ImportError:
     import _thread as thread
 import time
 
+if sys.platform == "linux":
+    import fcntl
+
 tx_data = u''
 lock = threading.Lock()
 uart_instance = None
 log_fname = ''
+
+def lock_file(f):
+    try:
+        if (sys.platform == "linux"):
+            if f.writable(): 
+                fcntl.lockf(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except:
+        return 1
+    return 0
+
+def unlock_file(f):
+    try:
+        if (sys.platform == "linux"):
+            if f.writable(): fcntl.lockf(f, fcntl.LOCK_UN)
+    except:
+        return 1
+    return 0
 
 def parse_cmd(argc):
     less_indent_formatter = lambda prog: argparse.RawTextHelpFormatter(prog, max_help_position=10)
@@ -202,6 +222,11 @@ def main(argc, argv):
     if (uart_instance.Connection()):
         print('UART Connection Fail')
         return
+
+    if(lock_file(uart_instance.Serial)):
+        print('It is already in use by another process.')
+        return
+
     init_log_folder(parse_option.port)
     print('UART Connection Success')
 
@@ -222,6 +247,7 @@ def main(argc, argv):
     thread.start_new_thread(terminal_write_handler, ())
 
     if (run_read_proc(parse_option.watch_pattern, parse_option.watch_end) == 0):
+        unlock_file(uart_instance.Serial)
         uart_instance.Disconnection()
 
 if __name__ == "__main__":
